@@ -2,7 +2,8 @@ import styles from "./Modal.module.css";
 import { useAuth } from "../context/AuthContext";
 
 const MY_FINANCES_SECURE_KEY = import.meta.env.VITE_MY_FINANCES_SECURE_KEY;
-const API_ADDRESS = import.meta.env.VITE_API_ADDRESS;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_AUTH_BIN_RESOURCE = import.meta.env.VITE_API_AUTH_BIN_RESOURCE
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export function SettingsModal({ onClose }) {
@@ -11,10 +12,12 @@ export function SettingsModal({ onClose }) {
   const handleAuth = async () => {
     const accessKey = prompt("Enviar ID de acesso");
 
+    const url = `${API_BASE_URL}/${API_AUTH_BIN_RESOURCE}`
+
     if (!accessKey) return;
 
     try {
-      const res = await fetch(API_ADDRESS, {
+      const res = await fetch(url, {
         headers: {
           "X-Master-Key": API_KEY,
         },

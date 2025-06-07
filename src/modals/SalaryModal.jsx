@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import styles from "./Modal.module.css";
 import { useAuth } from "../context/AuthContext";
+import _ from "lodash";
 
-const SALARY_STORAGE_KEY = import.meta.env.VITE_SALARY_STORAGE_KEY
+const SALARY_STORAGE_KEY = import.meta.env.VITE_SALARY_STORAGE_KEY;
+const LAST_UPDATE_BALANCE_KEY = import.meta.env_VITE_LAST_UPDATE_BALANCE_KEY;
 
-export default function SalaryModal({ onClose, onDataSaved  }) {
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_SALARY_BIN_RESOURCE = import.meta.env.VITE_API_SALARY_BIN_RESOURCE;
+const API_KEY = import.meta.env.VITE_API_KEY;
+
+export default function SalaryModal({ onDataSaved }) {
   const [entries, setEntries] = useState([{ tipo: "Salário", valor: "" }]);
-  const [dataPreviouslyExisted, setDataPreviouslyExisted] = useState(false);
-  const { validKey } = useAuth()
+  const { validKey } = useAuth();
 
   const handleChange = (index, field, value) => {
     const updated = [...entries];
@@ -20,39 +25,113 @@ export default function SalaryModal({ onClose, onDataSaved  }) {
   };
 
   const handleSave = async () => {
+    const previousEntries = JSON.parse(
+      localStorage.getItem(SALARY_STORAGE_KEY)
+    );
 
-    if(!validKey) {
-      alert("Você não está autenticado")
-      return 
-    }
-
-    const cleanedEntries = entries.filter(entry =>
-      entry.tipo.trim() !== '' &&
-      !isNaN(parseFloat(entry.valor)) &&
-      parseFloat(entry.valor) > 0
-    ).map(entry => ({
-      tipo: entry.tipo.trim(),
-      valor: parseFloat(entry.valor)
-    }));
-
-    if (cleanedEntries.length === 0) {
-      alert("Por favor, preencha pelo menos uma entrada de salário/receita válida antes de salvar.");
+    if (_.isEqual(entries, previousEntries)) {
+      console.log("Nenhuma alteração encontrada");
+      onDataSaved();
       return;
     }
 
-    handleRequest(cleanedEntries)
+    if (!validKey) {
+      alert("Você não está autenticado");
+      return;
+    }
+
+    const cleanedEntries = entries
+      .filter(
+        (entry) =>
+          entry.tipo.trim() !== "" &&
+          !isNaN(parseFloat(entry.valor)) &&
+          parseFloat(entry.valor) > 0
+      )
+      .map((entry) => ({
+        tipo: entry.tipo.trim(),
+        valor: parseFloat(entry.valor),
+      }));
+
+    if (cleanedEntries.length === 0) {
+      alert(
+        "Por favor, preencha pelo menos uma entrada de salário/receita válida antes de salvar."
+      );
+      return;
+    }
+    await handleRequest(cleanedEntries);
     onDataSaved();
-  }
+  };
 
-  function handleRequest(cleanedEntries) {
-    const method = dataPreviouslyExisted ? 'PUT' : 'POST';
-    const apiUrl = '/api/salary';
+  async function handleRequest(cleanedEntries) {
+    const url = `${API_BASE_URL}/${API_SALARY_BIN_RESOURCE}`;
+    const lastUpdateLocalRaw = localStorage.getItem(LAST_UPDATE_BALANCE_KEY);
 
-    console.log(`Tentando ${method} para a API com os dados:`, cleanedEntries);
-    alert(`Simulando ${method} para ${apiUrl} com os dados: ${JSON.stringify(cleanedEntries)}`);
+    try {
+      const lastUpdateLocal = lastUpdateLocalRaw
+        ? parseInt(JSON.parse(lastUpdateLocalRaw))
+        : null;
 
-    localStorage.setItem(SALARY_STORAGE_KEY, JSON.stringify(cleanedEntries));
-    console.log("Dados salvos no localStorage:", cleanedEntries);
+      const response = await fetch(url, {
+        headers: {
+          "X-Master-Key": API_KEY,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar dados: status ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const lastUpdateDataRaw = data?.record?.last_update;
+      const lastUpdateData = lastUpdateDataRaw
+        ? parseInt(lastUpdateDataRaw)
+        : null;
+
+      if (
+        lastUpdateData &&
+        lastUpdateLocal &&
+        lastUpdateData !== lastUpdateLocal
+      ) {
+        alert("É necessário sincronizar os dados.");
+        return;
+      }
+
+      const currentTime = Date.now();
+
+      const updatedData = {
+        id: JSON.parse(validKey)[0],
+        last_update: currentTime,
+        balance: cleanedEntries,
+      };
+
+      const putResponse = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY,
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!putResponse.ok) {
+        throw new Error(
+          `Erro ao salvar os dados: status ${putResponse.status}`
+        );
+      }
+
+      localStorage.setItem(
+        LAST_UPDATE_BALANCE_KEY,
+        JSON.stringify(currentTime)
+      );
+
+      localStorage.setItem(SALARY_STORAGE_KEY, JSON.stringify(cleanedEntries));
+
+      alert("Dados inseridos com sucesso.");
+    } catch (error) {
+      console.error("Erro ao processar handleRequest:", error);
+      alert("Ocorreu um erro ao processar os dados. Verifique o console.");
+    }
   }
 
   useEffect(() => {
@@ -62,10 +141,12 @@ export default function SalaryModal({ onClose, onDataSaved  }) {
         const parsedData = JSON.parse(storedData);
         if (Array.isArray(parsedData) && parsedData.length > 0) {
           setEntries(parsedData);
-          setDataPreviouslyExisted(true);
         }
       } catch (error) {
-        console.error("Erro ao fazer parse dos dados de salário do localStorage:", error);
+        console.error(
+          "Erro ao fazer parse dos dados de salário do localStorage:",
+          error
+        );
         localStorage.removeItem(SALARY_STORAGE_KEY);
       }
     }
@@ -114,7 +195,7 @@ export default function SalaryModal({ onClose, onDataSaved  }) {
           Salvar
         </button>
 
-        <button onClick={onClose} className={styles.closeButton}>
+        <button onClick={onDataSaved} className={styles.closeButton}>
           Cancelar
         </button>
       </div>

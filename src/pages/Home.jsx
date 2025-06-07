@@ -1,11 +1,11 @@
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./Home.module.css";
 import SalaryModal from "../modals/SalaryModal";
 import ExpensesModal from "../modals/ExpensesModal";
 import CloseMonthModal from "../modals/CloseMonthModal";
 import { SettingsModal } from "../modals/SettingsModal";
 
-const SALARY_STORAGE_KEY = import.meta.env.VITE_SALARY_STORAGE_KEY
+const SALARY_STORAGE_KEY = import.meta.env.VITE_SALARY_STORAGE_KEY;
 const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
 
 export default function Home() {
@@ -15,7 +15,7 @@ export default function Home() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const [initialBalance, setInitialBalance] = useState(0);
-  const [monthlyExpenses, setMonthlyExpenses] = useState(0); 
+  const [monthlyExpenses, setMonthlyExpenses] = useState(0);
   const [currentBalance, setCurrentBalance] = useState(0);
 
   const loadFinancialData = () => {
@@ -27,10 +27,16 @@ export default function Home() {
       try {
         const parsedSalaryData = JSON.parse(storedSalaryData);
         if (Array.isArray(parsedSalaryData)) {
-          totalSalary = parsedSalaryData.reduce((sum, entry) => sum + (parseFloat(entry.valor) || 0), 0);
+          totalSalary = parsedSalaryData.reduce(
+            (sum, entry) => sum + (parseFloat(entry.valor) || 0),
+            0
+          );
         }
       } catch (error) {
-        console.error("Erro ao carregar dados de salário do localStorage na Home:", error);
+        console.error(
+          "Erro ao carregar dados de salário do localStorage na Home:",
+          error
+        );
       }
     }
     setInitialBalance(totalSalary);
@@ -41,10 +47,16 @@ export default function Home() {
       try {
         const parsedExpensesData = JSON.parse(storedExpensesData);
         if (Array.isArray(parsedExpensesData)) {
-          totalExpenses = parsedExpensesData.reduce((sum, item) => sum + (parseFloat(item.valor) || 0), 0);
+          totalExpenses = parsedExpensesData.reduce(
+            (sum, item) => sum + (parseFloat(item.valor) || 0),
+            0
+          );
         }
       } catch (error) {
-        console.error("Erro ao carregar dados de despesas do localStorage na Home:", error);
+        console.error(
+          "Erro ao carregar dados de despesas do localStorage na Home:",
+          error
+        );
       }
     }
     setMonthlyExpenses(totalExpenses);
@@ -54,11 +66,11 @@ export default function Home() {
 
   useEffect(() => {
     loadFinancialData();
-  }, []); 
+  }, []);
 
   const handleDataSaved = () => {
-    loadFinancialData(); 
-    setShowSalaryModal(false); 
+    loadFinancialData();
+    setShowSalaryModal(false);
     setShowExpensesModal(false);
   };
 
@@ -91,11 +103,13 @@ export default function Home() {
           <strong>R$ {currentBalance.toFixed(2)}</strong>
         </div>
       </div>
-      {showSalaryModal && (
-        <SalaryModal onClose={handleDataSaved} onDataSaved={handleDataSaved} />
-      )}
+
+      {showSalaryModal && <SalaryModal onDataSaved={handleDataSaved} />}
+
       {showExpensesModal && (
-        <ExpensesModal onClose={handleDataSaved} onDataSaved={handleDataSaved} />
+        <ExpensesModal
+          onDataSaved={handleDataSaved}
+        />
       )}
       {showCloseMonthModal && (
         <CloseMonthModal onClose={() => setShowCloseMonthModal(false)} />

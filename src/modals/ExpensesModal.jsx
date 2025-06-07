@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 
 const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
 
-export default function ExpensesModal({ onClose }) {
+export default function ExpensesModal({ onDataSaved }) {
   const [expenses, setExpenses] = useState([
     { descricao: "", categoria: "", valor: "" },
   ]);
@@ -62,7 +62,7 @@ export default function ExpensesModal({ onClose }) {
     }
 
     handleRequest(cleanedExpenses);
-    onClose();
+    onDataSaved();
   };
 
   useEffect(() => {
@@ -142,7 +142,7 @@ export default function ExpensesModal({ onClose }) {
           Salvar
         </button>
 
-        <button onClick={onClose} className={styles.closeButton}>
+        <button onClick={onDataSaved} className={styles.closeButton}>
           Fechar
         </button>
       </div>
