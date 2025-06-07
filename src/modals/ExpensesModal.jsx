@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
-import styles from './Modal.module.css';
+import { useEffect, useState } from "react";
+import styles from "./Modal.module.css";
+import { useAuth } from "../context/AuthContext";
 
-const EXPENSES_STORAGE_KEY = 'myFinances_ExpensesData';
+const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
 
 export default function ExpensesModal({ onClose }) {
   const [expenses, setExpenses] = useState([
-    { descricao: '', categoria: '', valor: ''},
+    { descricao: "", categoria: "", valor: "" },
   ]);
+
+  const { validKey } = useAuth();
 
   const [dataPreviouslyExisted, setDataPreviouslyExisted] = useState(false);
 
@@ -17,55 +20,71 @@ export default function ExpensesModal({ onClose }) {
   };
 
   const addExpense = () => {
-    setExpenses([...expenses, { descricao: '', categoria: '', valor: ''}]);
+    setExpenses([...expenses, { descricao: "", categoria: "", valor: "" }]);
   };
 
-  const handleSave = async () => {
-
-    const cleanedExpenses = expenses.filter(expense => 
-      expense.descricao.trim() !== '' && 
-      !isNaN(parseFloat(expense.valor))
-    ).map(expense => ({
-      descricao: expense.descricao.trim(),
-      categoria: expense.categoria.trim(),
-      valor: parseFloat(expense.valor)
-    }));
-
-    if (cleanedExpenses.length === 0) {
-      alert("Por favor, preencha pelo menos uma entrada de salário/receita válida antes de salvar.");
-      return;
-    }
-
-    const method = dataPreviouslyExisted ? 'PUT' : 'POST';
-    const apiUrl = '/api/salary'; 
+  function handleRequest(cleanedExpenses) {
+    const method = dataPreviouslyExisted ? "PUT" : "POST";
+    const apiUrl = "/api/salary";
 
     console.log(`Tentando ${method} para a API com os dados:`, cleanedExpenses);
-    alert(`Simulando ${method} para ${apiUrl} com os dados: ${JSON.stringify(cleanedExpenses)}`);
+    alert(
+      `Simulando ${method} para ${apiUrl} com os dados: ${JSON.stringify(
+        cleanedExpenses
+      )}`
+    );
 
     localStorage.setItem(EXPENSES_STORAGE_KEY, JSON.stringify(cleanedExpenses));
     console.log("Dados salvos no localStorage:", cleanedExpenses);
-
-    onClose();
   }
-   
-    useEffect(() => {
-      const storedData = localStorage.getItem(EXPENSES_STORAGE_KEY);
-  
-      if (storedData) {
-        try {
-          const parsedData = JSON.parse(storedData);
-  
-          if (Array.isArray(parsedData) && parsedData.length > 0) {
-            setExpenses(parsedData);
-            setDataPreviouslyExisted(true);
-          }
-  
-        } catch (error) {
-          console.error("Erro ao fazer parse dos dados de salário do localStorage:", error);
-          localStorage.removeItem(EXPENSES_STORAGE_KEY);
+
+  const handleSave = async () => {
+    if (!validKey) {
+      alert("Você não está autenticado");
+      return;
+    }
+    const cleanedExpenses = expenses
+      .filter(
+        (expense) =>
+          expense.descricao.trim() !== "" && !isNaN(parseFloat(expense.valor))
+      )
+      .map((expense) => ({
+        descricao: expense.descricao.trim(),
+        categoria: expense.categoria.trim(),
+        valor: parseFloat(expense.valor),
+      }));
+
+    if (cleanedExpenses.length === 0) {
+      alert(
+        "Por favor, preencha pelo menos uma entrada de salário/receita válida antes de salvar."
+      );
+      return;
+    }
+
+    handleRequest(cleanedExpenses);
+    onClose();
+  };
+
+  useEffect(() => {
+    const storedData = localStorage.getItem(EXPENSES_STORAGE_KEY);
+
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+
+        if (Array.isArray(parsedData) && parsedData.length > 0) {
+          setExpenses(parsedData);
+          setDataPreviouslyExisted(true);
         }
+      } catch (error) {
+        console.error(
+          "Erro ao fazer parse dos dados de salário do localStorage:",
+          error
+        );
+        localStorage.removeItem(EXPENSES_STORAGE_KEY);
       }
-    }, []);
+    }
+  }, []);
 
   return (
     <div className={styles.modalBackdrop}>
@@ -86,7 +105,9 @@ export default function ExpensesModal({ onClose }) {
                   <input
                     type="text"
                     value={item.descricao}
-                    onChange={e => handleChange(idx, 'descricao', e.target.value)}
+                    onChange={(e) =>
+                      handleChange(idx, "descricao", e.target.value)
+                    }
                     placeholder="Ex: Conta de luz"
                   />
                 </td>
@@ -94,7 +115,9 @@ export default function ExpensesModal({ onClose }) {
                   <input
                     type="text"
                     value={item.categoria}
-                    onChange={e => handleChange(idx, 'categoria', e.target.value)}
+                    onChange={(e) =>
+                      handleChange(idx, "categoria", e.target.value)
+                    }
                     placeholder="Ex: Utilities"
                   />
                 </td>
@@ -102,10 +125,10 @@ export default function ExpensesModal({ onClose }) {
                   <input
                     type="number"
                     value={item.valor}
-                    onChange={e => handleChange(idx, 'valor', e.target.value)}
+                    onChange={(e) => handleChange(idx, "valor", e.target.value)}
                     placeholder="Ex: 150"
                   />
-                </td>           
+                </td>
               </tr>
             ))}
           </tbody>

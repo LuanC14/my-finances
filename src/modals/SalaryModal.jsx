@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import styles from "./Modal.module.css";
+import { useAuth } from "../context/AuthContext";
 
-const SALARY_STORAGE_KEY = 'myFinances_salaryData';
+const SALARY_STORAGE_KEY = import.meta.env.VITE_SALARY_STORAGE_KEY
 
 export default function SalaryModal({ onClose, onDataSaved  }) {
   const [entries, setEntries] = useState([{ tipo: "Salário", valor: "" }]);
   const [dataPreviouslyExisted, setDataPreviouslyExisted] = useState(false);
+  const { validKey } = useAuth()
 
   const handleChange = (index, field, value) => {
     const updated = [...entries];
@@ -18,6 +20,12 @@ export default function SalaryModal({ onClose, onDataSaved  }) {
   };
 
   const handleSave = async () => {
+
+    if(!validKey) {
+      alert("Você não está autenticado")
+      return 
+    }
+
     const cleanedEntries = entries.filter(entry =>
       entry.tipo.trim() !== '' &&
       !isNaN(parseFloat(entry.valor)) &&
@@ -32,6 +40,11 @@ export default function SalaryModal({ onClose, onDataSaved  }) {
       return;
     }
 
+    handleRequest(cleanedEntries)
+    onDataSaved();
+  }
+
+  function handleRequest(cleanedEntries) {
     const method = dataPreviouslyExisted ? 'PUT' : 'POST';
     const apiUrl = '/api/salary';
 
@@ -40,10 +53,6 @@ export default function SalaryModal({ onClose, onDataSaved  }) {
 
     localStorage.setItem(SALARY_STORAGE_KEY, JSON.stringify(cleanedEntries));
     console.log("Dados salvos no localStorage:", cleanedEntries);
-
-    if (onDataSaved) {
-      onDataSaved();
-    }
   }
 
   useEffect(() => {

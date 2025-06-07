@@ -5,8 +5,8 @@ import ExpensesModal from "../modals/ExpensesModal";
 import CloseMonthModal from "../modals/CloseMonthModal";
 import { SettingsModal } from "../modals/SettingsModal";
 
-const SALARY_STORAGE_KEY = 'myFinances_salaryData';
-const EXPENSES_STORAGE_KEY = 'myFinances_ExpensesData';
+const SALARY_STORAGE_KEY = import.meta.env.VITE_SALARY_STORAGE_KEY
+const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
 
 export default function Home() {
   const [showSalaryModal, setShowSalaryModal] = useState(false);
@@ -14,14 +14,11 @@ export default function Home() {
   const [showCloseMonthModal, setShowCloseMonthModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-  // Estados para os valores que serão exibidos, agora gerenciados pela Home
   const [initialBalance, setInitialBalance] = useState(0);
-  const [monthlyExpenses, setMonthlyExpenses] = useState(0); // Será atualizado para despesas
+  const [monthlyExpenses, setMonthlyExpenses] = useState(0); 
   const [currentBalance, setCurrentBalance] = useState(0);
 
-  // Função para carregar e calcular os saldos
   const loadFinancialData = () => {
-    // Carregar Saldo Inicial (SalaryModel)
     const storedSalaryData = localStorage.getItem(SALARY_STORAGE_KEY);
 
     let totalSalary = 0;
@@ -38,7 +35,6 @@ export default function Home() {
     }
     setInitialBalance(totalSalary);
 
-    // Carregar Gastos do Mês (ExpensesModel - preparação futura)
     const storedExpensesData = localStorage.getItem(EXPENSES_STORAGE_KEY);
     let totalExpenses = 0;
     if (storedExpensesData) {
@@ -53,20 +49,17 @@ export default function Home() {
     }
     setMonthlyExpenses(totalExpenses);
 
-    // Calcular Saldo Atual
     setCurrentBalance(totalSalary - totalExpenses);
   };
 
-  // Carregar dados na montagem do componente
   useEffect(() => {
     loadFinancialData();
-  }, []); // Executa apenas uma vez na montagem
+  }, []); 
 
-  // Callback para ser chamado quando o SalaryModal ou ExpensesModal salvar dados
   const handleDataSaved = () => {
-    loadFinancialData(); // Recarrega os dados do localStorage e atualiza os estados
-    setShowSalaryModal(false); // Garante que o modal de salário feche
-    setShowExpensesModal(false); // Garante que o modal de despesa feche
+    loadFinancialData(); 
+    setShowSalaryModal(false); 
+    setShowExpensesModal(false);
   };
 
   return (
