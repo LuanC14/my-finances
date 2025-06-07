@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
-const MY_FINANCES_SECURE_KEY = "myFinances_Secure_Key";
+const MY_FINANCES_SECURE_KEY = import.meta.env.VITE_MY_FINANCES_SECURE_KEY;
 
 export function useAuth() {
   return useContext(AuthContext);
