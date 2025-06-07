@@ -1,0 +1,82 @@
+/* src/pages/Home.module.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    min-height: 100vh;
+    background-color: #f9fafb;
+    font-family: system-ui, sans-serif;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: #1f2937;
+  }
+  
+  .cardGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .card:hover {
+    transform: scale(1.02);
+  }
+  
+  .label {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+  
+  .value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #111827;
+  }
+  
+  /* Desktop view */
+  @media (min-width: 768px) {
+    .cardGrid {
+      flex-direction: row;
+      justify-content: center;
+    }
+  
+    .card {
+      flex: 1;
+      max-width: 250px;
+      text-align: center;
+    }
+  }
+
+  .settingsButton {
+    position: absolute; /* Posição absoluta para o canto */
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.8rem; /* Tamanho do ícone */
+    cursor: pointer;
+    color: #6b7280; /* Cor similar aos textos secundários */
+    transition: color 0.2s ease;
+  }
+  
+  .settingsButton:hover {
+    color: #1f2937; /* Escurece no hover */
+  }
+  

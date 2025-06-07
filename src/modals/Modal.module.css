@@ -1,0 +1,165 @@
+/* src/components/Modal.module.css */
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.modalContent h2 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #111827;
+}
+
+.modalContent p { /* Esta regra para <p> é boa para descrições gerais no modal */
+  margin-bottom: 2rem;
+  color: #4b5563;
+  font-size: 1rem;
+}
+
+.modalDescription { /* Adicionando uma classe específica para descrições curtas no modal */
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 1rem; /* Ajustei o margin-bottom para 1rem */
+  text-align: center;
+}
+
+/* Novo estilo para botões de ação genéricos no modal */
+.button {
+  width: 100%; /* Ocupa a largura total */
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.75rem; /* Espaçamento entre os botões */
+  border-radius: 8px;
+  background-color: #10b981; /* Verde do `addButton` do SalaryModal */
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.button:hover {
+  background-color: #059669; /* Escurece no hover */
+}
+
+/* Estilo para botões de ação perigosa (Remover CSV) */
+.buttonDanger {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+  background-color: #ef4444; /* Vermelho do `resetButton` */
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.buttonDanger:hover {
+  background-color: #b91c1c; /* Escurece no hover */
+}
+
+.closeButton {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 1rem; /* Adicionado para separar do último botão */
+}
+
+.closeButton:hover {
+  background-color: #1d4ed8;
+}
+
+/** On Salary Modal */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.table th, .table td {
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.table input {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.addButton {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+.saveButton {
+  background-color: #b97010;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+
+  margin-inline: 4px;
+}
+
+.addButton:hover {
+  background-color: #059669;
+}
+
+.resetButton {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.resetButton:hover {
+  background-color: #b91c1c;
+}
+
+@media (min-width: 768px) {
+  .modalContent {
+      max-width: 500px;
+  }
+}
