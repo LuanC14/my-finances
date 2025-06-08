@@ -3,6 +3,7 @@ import styles from "./Modal.module.css";
 import { useAuth } from "../context/AuthContext";
 import _ from "lodash";
 import { FaSave, FaTimes, FaSyncAlt, FaPlus } from "react-icons/fa";
+import { handleGetBalance, handlePost } from "../api/api";
 
 const BALANCE_STORAGE_KEY = import.meta.env.VITE_BALANCE_STORAGE_KEY;
 const LAST_UPDATE_BALANCE_KEY = import.meta.env.VITE_LAST_UPDATE_BALANCE_KEY;
@@ -59,111 +60,50 @@ export default function BalanceModal({ onDataSaved }) {
       );
       return;
     }
-    await handleRequest(cleanedEntries);
-    onDataSaved();
+    const url = `${API_BASE_URL}/${API_SALARY_BIN_RESOURCE}`;
+
+    const body = { balance: cleanedEntries };
+
+    const result = await handlePost(
+      url,
+      API_KEY,
+      validKey,
+      body,
+      LAST_UPDATE_BALANCE_KEY
+    );
+
+    if (result.ok) {
+      localStorage.setItem(
+        LAST_UPDATE_BALANCE_KEY,
+        JSON.stringify(result.timestamp)
+      );
+
+      localStorage.setItem(BALANCE_STORAGE_KEY, JSON.stringify(cleanedEntries));
+
+      onDataSaved();
+    } else {
+      alert("Ocorreu um erro ao processar os dados. Verifique o console.");
+    }
   };
 
   async function handleRefresh() {
     const url = `${API_BASE_URL}/${API_SALARY_BIN_RESOURCE}`;
 
-    const response = await fetch(url, {
-      headers: {
-        "X-Master-Key": API_KEY,
-      },
-    });
+    const result = await handleGetBalance(url, API_KEY);
 
-    if (!response.ok) {
-      throw new Error(`Erro ao buscar dados: status ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    const lastUpdateDataRaw = data?.record?.last_update;
-
-    const lastUpdateData = lastUpdateDataRaw
-      ? parseInt(lastUpdateDataRaw)
-      : null;
-
-    localStorage.setItem(
-      LAST_UPDATE_BALANCE_KEY,
-      JSON.stringify(lastUpdateData)
-    );
-
-    const balances = data?.record?.balance;
-
-    localStorage.setItem(BALANCE_STORAGE_KEY, JSON.stringify(balances));
-    setEntries(balances);
-  }
-
-  async function handleRequest(cleanedEntries) {
-    const url = `${API_BASE_URL}/${API_SALARY_BIN_RESOURCE}`;
-    const lastUpdateLocalRaw = localStorage.getItem(LAST_UPDATE_BALANCE_KEY);
-
-    try {
-      const lastUpdateLocal = lastUpdateLocalRaw
-        ? parseInt(JSON.parse(lastUpdateLocalRaw))
-        : null;
-
-      const response = await fetch(url, {
-        headers: {
-          "X-Master-Key": API_KEY,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar dados: status ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      const lastUpdateDataRaw = data?.record?.last_update;
-      const lastUpdateData = lastUpdateDataRaw
-        ? parseInt(lastUpdateDataRaw)
-        : null;
-
-      if (
-        lastUpdateData &&
-        lastUpdateLocal &&
-        lastUpdateData !== lastUpdateLocal
-      ) {
-        alert("É necessário sincronizar os dados.");
-        return;
-      }
-
-      const currentTime = Date.now();
-
-      const updatedData = {
-        id: validKey,
-        last_update: currentTime,
-        balance: cleanedEntries,
-      };
-
-      const putResponse = await fetch(url, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": API_KEY,
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!putResponse.ok) {
-        throw new Error(
-          `Erro ao salvar os dados: status ${putResponse.status}`
-        );
-      }
-
+    if (result.ok) {
       localStorage.setItem(
         LAST_UPDATE_BALANCE_KEY,
-        JSON.stringify(currentTime)
+        JSON.stringify(result.body.timestamp)
       );
 
-      localStorage.setItem(BALANCE_STORAGE_KEY, JSON.stringify(cleanedEntries));
-
-      alert("Dados inseridos com sucesso.");
-    } catch (error) {
-      console.error("Erro ao processar handleRequest:", error);
-      alert("Ocorreu um erro ao processar os dados. Verifique o console.");
+      localStorage.setItem(
+        BALANCE_STORAGE_KEY,
+        JSON.stringify(result.body.balances)
+      );
+      setEntries(entries);
+    } else {
+      alert("Erro ao atualizar");
     }
   }
 

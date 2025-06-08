@@ -3,6 +3,7 @@ import styles from "./Modal.module.css";
 import { useAuth } from "../context/AuthContext";
 import _ from "lodash";
 import { FaSave, FaTimes, FaSyncAlt, FaPlus } from "react-icons/fa";
+import { handleGetExpenses, handlePost } from "../api/api";
 
 const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
 const LAST_UPDATE_EXPENSES_KEY = import.meta.env.VITE_LAST_UPDATE_EXPENSES_KEY;
@@ -28,81 +29,6 @@ export default function ExpensesModal({ onDataSaved }) {
   const addExpense = () => {
     setExpenses([...expenses, { descricao: "", categoria: "", valor: "" }]);
   };
-
-  async function handleRequest(cleanedExpenses) {
-    const url = `${API_BASE_URL}/${API_EXPENSES_BIN_RESOURCE}`;
-    const lastUpdateLocalRaw = localStorage.getItem(LAST_UPDATE_EXPENSES_KEY);
-
-    try {
-      const lastUpdateLocal = lastUpdateLocalRaw
-        ? parseInt(JSON.parse(lastUpdateLocalRaw))
-        : null;
-
-      const response = await fetch(url, {
-        headers: {
-          "X-Master-Key": API_KEY,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar dados: status ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      const lastUpdateDataRaw = data?.record?.last_update;
-      const lastUpdateData = lastUpdateDataRaw
-        ? parseInt(lastUpdateDataRaw)
-        : null;
-
-      if (
-        lastUpdateData &&
-        lastUpdateLocal &&
-        lastUpdateData !== lastUpdateLocal
-      ) {
-        alert("É necessário sincronizar os dados.");
-        return;
-      }
-
-      const currentTime = Date.now();
-
-      const updatedData = {
-        id: validKey,
-        last_update: currentTime,
-        expenses: cleanedExpenses,
-      };
-
-      const putResponse = await fetch(url, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": API_KEY,
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!putResponse.ok) {
-        throw new Error(
-          `Erro ao salvar os dados: status ${putResponse.status}`
-        );
-      }
-
-      localStorage.setItem(
-        LAST_UPDATE_EXPENSES_KEY,
-        JSON.stringify(currentTime)
-      );
-
-      localStorage.setItem(
-        EXPENSES_STORAGE_KEY,
-        JSON.stringify(cleanedExpenses)
-      );
-
-      alert("Dados inseridos com sucesso.");
-    } catch (error) {
-      console.error("Erro ao processar handleRequest:", error);
-      alert("Ocorreu um erro ao processar os dados. Verifique o console.");
-    }
-  }
 
   const handleSave = async () => {
     const previousExpenses = JSON.parse(
@@ -136,40 +62,57 @@ export default function ExpensesModal({ onDataSaved }) {
       return;
     }
 
-    await handleRequest(cleanedExpenses);
-    onDataSaved();
+    const url = `${API_BASE_URL}/${API_EXPENSES_BIN_RESOURCE}`;
+
+    const body = { expenses: cleanedExpenses };
+
+    const result = await handlePost(
+      url,
+      API_KEY,
+      validKey,
+      body,
+      LAST_UPDATE_EXPENSES_KEY
+    );
+
+    if (result.ok) {
+      localStorage.setItem(
+        LAST_UPDATE_EXPENSES_KEY,
+        JSON.stringify(result.timestamp)
+      );
+
+      localStorage.setItem(
+        EXPENSES_STORAGE_KEY,
+        JSON.stringify(cleanedExpenses)
+      );
+
+      onDataSaved();
+    } else {
+      alert("Ocorreu um erro ao processar os dados. Verifique o console.");
+    }
   };
 
   async function handleRefresh() {
     const url = `${API_BASE_URL}/${API_EXPENSES_BIN_RESOURCE}`;
 
-    const response = await fetch(url, {
-      headers: {
-        "X-Master-Key": API_KEY,
-      },
-    });
+    console.log("Chamando handleGetExpenses");
 
-    if (!response.ok) {
-      throw new Error(`Erro ao buscar dados: status ${response.status}`);
+    const result = await handleGetExpenses(url, API_KEY);
+
+    if (result.ok) {
+      localStorage.setItem(
+        LAST_UPDATE_EXPENSES_KEY,
+        JSON.stringify(result.body.timestamp)
+      );
+
+      localStorage.setItem(
+        EXPENSES_STORAGE_KEY,
+        JSON.stringify(result.body.expenses)
+      );
+
+      setExpenses(expenses);
+    } else {
+      alert("Erro ao atualizar");
     }
-
-    const data = await response.json();
-
-    const lastUpdateDataRaw = data?.record?.last_update;
-
-    const lastUpdateData = lastUpdateDataRaw
-      ? parseInt(lastUpdateDataRaw)
-      : null;
-
-    localStorage.setItem(
-      LAST_UPDATE_EXPENSES_KEY,
-      JSON.stringify(lastUpdateData)
-    );
-
-    const expenses = data?.record?.expenses;
-
-    localStorage.setItem(EXPENSES_STORAGE_KEY, JSON.stringify(expenses));
-    setExpenses(expenses);
   }
 
   useEffect(() => {
