@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 
 const MY_FINANCES_SECURE_KEY = import.meta.env.VITE_MY_FINANCES_SECURE_KEY;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_AUTH_BIN_RESOURCE = import.meta.env.VITE_API_AUTH_BIN_RESOURCE
+const API_AUTH_BIN_RESOURCE = import.meta.env.VITE_API_AUTH_BIN_RESOURCE;
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export function SettingsModal({ onClose }) {
@@ -12,7 +12,7 @@ export function SettingsModal({ onClose }) {
   const handleAuth = async () => {
     const accessKey = prompt("Enviar ID de acesso");
 
-    const url = `${API_BASE_URL}/${API_AUTH_BIN_RESOURCE}`
+    const url = `${API_BASE_URL}/${API_AUTH_BIN_RESOURCE}`;
 
     if (!accessKey) return;
 
@@ -30,10 +30,7 @@ export function SettingsModal({ onClose }) {
 
       if (keys.includes(accessKey)) {
         setValidKey(accessKey);
-        localStorage.setItem(
-          MY_FINANCES_SECURE_KEY,
-          JSON.stringify([accessKey])
-        );
+        localStorage.setItem(MY_FINANCES_SECURE_KEY, JSON.stringify(accessKey));
       } else {
         setValidKey(null);
       }
@@ -55,7 +52,7 @@ export function SettingsModal({ onClose }) {
           {validKey ? "Conectado." : "Nenhum usuário conectado."}
         </p>
         {!validKey && (
-          <button className={styles.button} onClick={handleAuth}>
+          <button className={styles.settingsButton} onClick={handleAuth}>
             Enviar ID de acesso
           </button>
         )}
@@ -65,7 +62,7 @@ export function SettingsModal({ onClose }) {
             Remover chave de acesso
           </button>
         )}
-        <button onClick={onClose} className={styles.closeButton}>
+        <button onClick={onClose} className={styles.settingsCloseButton}>
           Fechar
         </button>
       </div>

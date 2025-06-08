@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import styles from "./Modal.module.css";
 import { useAuth } from "../context/AuthContext";
 import _ from "lodash";
+import { FaSave, FaTimes, FaSyncAlt, FaPlus } from "react-icons/fa";
 
 const BALANCE_STORAGE_KEY = import.meta.env.VITE_BALANCE_STORAGE_KEY;
-const LAST_UPDATE_BALANCE_KEY = import.meta.env_VITE_LAST_UPDATE_BALANCE_KEY;
+const LAST_UPDATE_BALANCE_KEY = import.meta.env.VITE_LAST_UPDATE_BALANCE_KEY;
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_SALARY_BIN_RESOURCE = import.meta.env.VITE_API_SALARY_BIN_RESOURCE;
@@ -62,6 +63,38 @@ export default function BalanceModal({ onDataSaved }) {
     onDataSaved();
   };
 
+  async function handleRefresh() {
+    const url = `${API_BASE_URL}/${API_SALARY_BIN_RESOURCE}`;
+
+    const response = await fetch(url, {
+      headers: {
+        "X-Master-Key": API_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro ao buscar dados: status ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    const lastUpdateDataRaw = data?.record?.last_update;
+
+    const lastUpdateData = lastUpdateDataRaw
+      ? parseInt(lastUpdateDataRaw)
+      : null;
+
+    localStorage.setItem(
+      LAST_UPDATE_BALANCE_KEY,
+      JSON.stringify(lastUpdateData)
+    );
+
+    const balances = data?.record?.balance;
+
+    localStorage.setItem(BALANCE_STORAGE_KEY, JSON.stringify(balances));
+    setEntries(balances);
+  }
+
   async function handleRequest(cleanedEntries) {
     const url = `${API_BASE_URL}/${API_SALARY_BIN_RESOURCE}`;
     const lastUpdateLocalRaw = localStorage.getItem(LAST_UPDATE_BALANCE_KEY);
@@ -100,7 +133,7 @@ export default function BalanceModal({ onDataSaved }) {
       const currentTime = Date.now();
 
       const updatedData = {
-        id: JSON.parse(validKey)[0],
+        id: validKey,
         last_update: currentTime,
         balance: cleanedEntries,
       };
@@ -187,16 +220,20 @@ export default function BalanceModal({ onDataSaved }) {
           </tbody>
         </table>
 
-        <button className={styles.addButton} onClick={addEntry}>
-          + Adicionar Entrada
+        <button className={styles.buttonsBalance} onClick={addEntry}>
+          <FaPlus />
         </button>
 
-        <button onClick={handleSave} className={styles.saveButton}>
-          Salvar
+        <button onClick={handleSave} className={styles.buttonsBalance}>
+          <FaSave />
         </button>
 
-        <button onClick={onDataSaved} className={styles.closeButton}>
-          Cancelar
+        <button onClick={handleRefresh} className={styles.buttonsBalance}>
+          <FaSyncAlt />
+        </button>
+
+        <button onClick={onDataSaved} className={styles.buttonsBalance}>
+          <FaTimes />
         </button>
       </div>
     </div>

@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import styles from "./Modal.module.css";
 import { useAuth } from "../context/AuthContext";
+import _ from "lodash";
+import { FaSave, FaTimes, FaSyncAlt, FaPlus } from "react-icons/fa";
 
 const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
+const LAST_UPDATE_EXPENSES_KEY = import.meta.env.VITE_LAST_UPDATE_EXPENSES_KEY;
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_EXPENSES_BIN_RESOURCE = import.meta.env
+  .VITE_API_EXPENSES_BIN_RESOURCE;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function ExpensesModal({ onDataSaved }) {
   const [expenses, setExpenses] = useState([
@@ -10,8 +18,6 @@ export default function ExpensesModal({ onDataSaved }) {
   ]);
 
   const { validKey } = useAuth();
-
-  const [dataPreviouslyExisted, setDataPreviouslyExisted] = useState(false);
 
   const handleChange = (index, field, value) => {
     const updated = [...expenses];
@@ -23,22 +29,91 @@ export default function ExpensesModal({ onDataSaved }) {
     setExpenses([...expenses, { descricao: "", categoria: "", valor: "" }]);
   };
 
-  function handleRequest(cleanedExpenses) {
-    const method = dataPreviouslyExisted ? "PUT" : "POST";
-    const apiUrl = "/api/salary";
+  async function handleRequest(cleanedExpenses) {
+    const url = `${API_BASE_URL}/${API_EXPENSES_BIN_RESOURCE}`;
+    const lastUpdateLocalRaw = localStorage.getItem(LAST_UPDATE_EXPENSES_KEY);
 
-    console.log(`Tentando ${method} para a API com os dados:`, cleanedExpenses);
-    alert(
-      `Simulando ${method} para ${apiUrl} com os dados: ${JSON.stringify(
-        cleanedExpenses
-      )}`
-    );
+    try {
+      const lastUpdateLocal = lastUpdateLocalRaw
+        ? parseInt(JSON.parse(lastUpdateLocalRaw))
+        : null;
 
-    localStorage.setItem(EXPENSES_STORAGE_KEY, JSON.stringify(cleanedExpenses));
-    console.log("Dados salvos no localStorage:", cleanedExpenses);
+      const response = await fetch(url, {
+        headers: {
+          "X-Master-Key": API_KEY,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar dados: status ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const lastUpdateDataRaw = data?.record?.last_update;
+      const lastUpdateData = lastUpdateDataRaw
+        ? parseInt(lastUpdateDataRaw)
+        : null;
+
+      if (
+        lastUpdateData &&
+        lastUpdateLocal &&
+        lastUpdateData !== lastUpdateLocal
+      ) {
+        alert("É necessário sincronizar os dados.");
+        return;
+      }
+
+      const currentTime = Date.now();
+
+      const updatedData = {
+        id: validKey,
+        last_update: currentTime,
+        expenses: cleanedExpenses,
+      };
+
+      const putResponse = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY,
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!putResponse.ok) {
+        throw new Error(
+          `Erro ao salvar os dados: status ${putResponse.status}`
+        );
+      }
+
+      localStorage.setItem(
+        LAST_UPDATE_EXPENSES_KEY,
+        JSON.stringify(currentTime)
+      );
+
+      localStorage.setItem(
+        EXPENSES_STORAGE_KEY,
+        JSON.stringify(cleanedExpenses)
+      );
+
+      alert("Dados inseridos com sucesso.");
+    } catch (error) {
+      console.error("Erro ao processar handleRequest:", error);
+      alert("Ocorreu um erro ao processar os dados. Verifique o console.");
+    }
   }
 
   const handleSave = async () => {
+    const previousExpenses = JSON.parse(
+      localStorage.getItem(EXPENSES_STORAGE_KEY)
+    );
+
+    if (_.isEqual(expenses, previousExpenses)) {
+      console.log("Nenhuma alteração encontrada");
+      onDataSaved();
+      return;
+    }
     if (!validKey) {
       alert("Você não está autenticado");
       return;
@@ -61,9 +136,41 @@ export default function ExpensesModal({ onDataSaved }) {
       return;
     }
 
-    handleRequest(cleanedExpenses);
+    await handleRequest(cleanedExpenses);
     onDataSaved();
   };
+
+  async function handleRefresh() {
+    const url = `${API_BASE_URL}/${API_EXPENSES_BIN_RESOURCE}`;
+
+    const response = await fetch(url, {
+      headers: {
+        "X-Master-Key": API_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro ao buscar dados: status ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    const lastUpdateDataRaw = data?.record?.last_update;
+
+    const lastUpdateData = lastUpdateDataRaw
+      ? parseInt(lastUpdateDataRaw)
+      : null;
+
+    localStorage.setItem(
+      LAST_UPDATE_EXPENSES_KEY,
+      JSON.stringify(lastUpdateData)
+    );
+
+    const expenses = data?.record?.expenses;
+
+    localStorage.setItem(EXPENSES_STORAGE_KEY, JSON.stringify(expenses));
+    setExpenses(expenses);
+  }
 
   useEffect(() => {
     const storedData = localStorage.getItem(EXPENSES_STORAGE_KEY);
@@ -74,7 +181,6 @@ export default function ExpensesModal({ onDataSaved }) {
 
         if (Array.isArray(parsedData) && parsedData.length > 0) {
           setExpenses(parsedData);
-          setDataPreviouslyExisted(true);
         }
       } catch (error) {
         console.error(
@@ -134,16 +240,20 @@ export default function ExpensesModal({ onDataSaved }) {
           </tbody>
         </table>
 
-        <button className={styles.addButton} onClick={addExpense}>
-          + Adicionar Gasto
+        <button className={styles.buttonsBalance} onClick={addExpense}>
+          <FaPlus />
         </button>
 
-        <button onClick={handleSave} className={styles.saveButton}>
-          Salvar
+        <button onClick={handleSave} className={styles.buttonsBalance}>
+          <FaSave />
         </button>
 
-        <button onClick={onDataSaved} className={styles.closeButton}>
-          Fechar
+        <button onClick={handleRefresh} className={styles.buttonsBalance}>
+          <FaSyncAlt />
+        </button>
+
+        <button onClick={onDataSaved} className={styles.buttonsBalance}>
+          <FaTimes />
         </button>
       </div>
     </div>

@@ -1,4 +1,3 @@
-/* src/components/Modal.module.css */
 
 .modalBackdrop {
   position: fixed;
@@ -27,26 +26,25 @@
   color: #111827;
 }
 
-.modalContent p { /* Esta regra para <p> é boa para descrições gerais no modal */
+.modalContent p { 
   margin-bottom: 2rem;
   color: #4b5563;
   font-size: 1rem;
 }
 
-.modalDescription { /* Adicionando uma classe específica para descrições curtas no modal */
+.modalDescription { 
   font-size: 0.9rem;
   color: #6b7280;
-  margin-bottom: 1rem; /* Ajustei o margin-bottom para 1rem */
+  margin-bottom: 1rem; 
   text-align: center;
 }
 
-/* Novo estilo para botões de ação genéricos no modal */
-.button {
-  width: 100%; /* Ocupa a largura total */
+.settingsButton {
+  width: 100%; 
   padding: 0.8rem 1rem;
-  margin-bottom: 0.75rem; /* Espaçamento entre os botões */
+  margin-bottom: 0.75rem; 
   border-radius: 8px;
-  background-color: #10b981; /* Verde do `addButton` do SalaryModal */
+  background-color: #10b981; 
   color: white;
   border: none;
   cursor: pointer;
@@ -55,31 +53,8 @@
   transition: background-color 0.2s ease;
 }
 
-.button:hover {
-  background-color: #059669; /* Escurece no hover */
-}
-
-/* Estilo para botões de ação perigosa (Remover CSV) */
-.buttonDanger {
-  width: 100%;
-  padding: 0.8rem 1rem;
-  margin-bottom: 0.75rem;
-  border-radius: 8px;
-  background-color: #ef4444; /* Vermelho do `resetButton` */
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-}
-
-.buttonDanger:hover {
-  background-color: #b91c1c; /* Escurece no hover */
-}
-
-.closeButton {
-  background-color: #2563eb;
+.settingsCloseButton {
+  background-color: #10b981;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -94,7 +69,24 @@
   background-color: #1d4ed8;
 }
 
-/** On Salary Modal */
+.buttonDanger {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+  background-color: #ef4444; 
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.buttonDanger:hover {
+  background-color: #b91c1c; 
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -114,7 +106,7 @@
   font-size: 0.95rem;
 }
 
-.addButton {
+.buttonsBalance {
   background-color: #10b981;
   color: white;
   border: none;
@@ -122,40 +114,14 @@
   border-radius: 8px;
   font-weight: bold;
   margin-bottom: 1rem;
+  margin-inline: 2px;
   cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.saveButton {
-  background-color: #b97010;
+.buttonsBalance:hover {
+  background-color: #bac5be; 
   color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-
-  margin-inline: 4px;
-}
-
-.addButton:hover {
-  background-color: #059669;
-}
-
-.resetButton {
-  background-color: #ef4444;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-bottom: 1rem;
-  width: 100%;
-  transition: background-color 0.3s ease;
-}
-
-.resetButton:hover {
-  background-color: #b91c1c;
 }
 
 @media (min-width: 768px) {
