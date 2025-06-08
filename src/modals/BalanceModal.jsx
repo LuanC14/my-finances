@@ -3,14 +3,14 @@ import styles from "./Modal.module.css";
 import { useAuth } from "../context/AuthContext";
 import _ from "lodash";
 
-const SALARY_STORAGE_KEY = import.meta.env.VITE_SALARY_STORAGE_KEY;
+const BALANCE_STORAGE_KEY = import.meta.env.VITE_BALANCE_STORAGE_KEY;
 const LAST_UPDATE_BALANCE_KEY = import.meta.env_VITE_LAST_UPDATE_BALANCE_KEY;
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_SALARY_BIN_RESOURCE = import.meta.env.VITE_API_SALARY_BIN_RESOURCE;
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-export default function SalaryModal({ onDataSaved }) {
+export default function BalanceModal({ onDataSaved }) {
   const [entries, setEntries] = useState([{ tipo: "Salário", valor: "" }]);
   const { validKey } = useAuth();
 
@@ -26,7 +26,7 @@ export default function SalaryModal({ onDataSaved }) {
 
   const handleSave = async () => {
     const previousEntries = JSON.parse(
-      localStorage.getItem(SALARY_STORAGE_KEY)
+      localStorage.getItem(BALANCE_STORAGE_KEY)
     );
 
     if (_.isEqual(entries, previousEntries)) {
@@ -125,7 +125,7 @@ export default function SalaryModal({ onDataSaved }) {
         JSON.stringify(currentTime)
       );
 
-      localStorage.setItem(SALARY_STORAGE_KEY, JSON.stringify(cleanedEntries));
+      localStorage.setItem(BALANCE_STORAGE_KEY, JSON.stringify(cleanedEntries));
 
       alert("Dados inseridos com sucesso.");
     } catch (error) {
@@ -135,7 +135,7 @@ export default function SalaryModal({ onDataSaved }) {
   }
 
   useEffect(() => {
-    const storedData = localStorage.getItem(SALARY_STORAGE_KEY);
+    const storedData = localStorage.getItem(BALANCE_STORAGE_KEY);
     if (storedData) {
       try {
         const parsedData = JSON.parse(storedData);
@@ -147,7 +147,7 @@ export default function SalaryModal({ onDataSaved }) {
           "Erro ao fazer parse dos dados de salário do localStorage:",
           error
         );
-        localStorage.removeItem(SALARY_STORAGE_KEY);
+        localStorage.removeItem(BALANCE_STORAGE_KEY);
       }
     }
   }, []);

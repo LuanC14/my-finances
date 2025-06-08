@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import styles from "./Home.module.css";
-import SalaryModal from "../modals/SalaryModal";
+import BalanceModal from "../modals/BalanceModal";
 import ExpensesModal from "../modals/ExpensesModal";
 import CloseMonthModal from "../modals/CloseMonthModal";
 import { SettingsModal } from "../modals/SettingsModal";
 
-const SALARY_STORAGE_KEY = import.meta.env.VITE_SALARY_STORAGE_KEY;
+const BALANCE_STORAGE_KEY = import.meta.env.VITE_BALANCE_STORAGE_KEY;
 const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
 
 export default function Home() {
-  const [showSalaryModal, setShowSalaryModal] = useState(false);
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showExpensesModal, setShowExpensesModal] = useState(false);
   const [showCloseMonthModal, setShowCloseMonthModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -19,7 +19,7 @@ export default function Home() {
   const [currentBalance, setCurrentBalance] = useState(0);
 
   const loadFinancialData = () => {
-    const storedSalaryData = localStorage.getItem(SALARY_STORAGE_KEY);
+    const storedSalaryData = localStorage.getItem(BALANCE_STORAGE_KEY);
 
     let totalSalary = 0;
 
@@ -70,7 +70,7 @@ export default function Home() {
 
   const handleDataSaved = () => {
     loadFinancialData();
-    setShowSalaryModal(false);
+    setShowBalanceModal(false);
     setShowExpensesModal(false);
   };
 
@@ -85,7 +85,7 @@ export default function Home() {
       </button>
 
       <div className={styles.cardGrid}>
-        <div className={styles.card} onClick={() => setShowSalaryModal(true)}>
+        <div className={styles.card} onClick={() => setShowBalanceModal(true)}>
           <p>Saldo Inicial</p>
           <strong>R$ {initialBalance.toFixed(2)}</strong>
         </div>
@@ -104,16 +104,14 @@ export default function Home() {
         </div>
       </div>
 
-      {showSalaryModal && <SalaryModal onDataSaved={handleDataSaved} />}
+      {showBalanceModal && <BalanceModal onDataSaved={handleDataSaved} />}
 
-      {showExpensesModal && (
-        <ExpensesModal
-          onDataSaved={handleDataSaved}
-        />
-      )}
+      {showExpensesModal && <ExpensesModal onDataSaved={handleDataSaved} />}
+
       {showCloseMonthModal && (
         <CloseMonthModal onClose={() => setShowCloseMonthModal(false)} />
       )}
+
       {showSettingsModal && (
         <SettingsModal onClose={() => setShowSettingsModal(false)} />
       )}
