@@ -26,7 +26,7 @@ jobs:
           echo "VITE_API_AUTH_BIN_RESOURCE=${{ secrets.VITE_API_AUTH_BIN_RESOURCE }}" >> .env.production
           echo "VITE_API_SALARY_BIN_RESOURCE=${{ secrets.VITE_API_SALARY_BIN_RESOURCE }}" >> .env.production
           echo "VITE_API_EXPENSES_BIN_RESOURCE=${{ secrets.VITE_API_EXPENSES_BIN_RESOURCE }}" >> .env.production
-          echo "VITE_API_KEY=${{ secrets.VITE_API_KEY }}" >> .env.production
+          echo "VITE_API_KEY='${{ secrets.VITE_API_KEY }}'" >> .env.production
           echo "VITE_LAST_UPDATE_BALANCE_KEY=${{ secrets.VITE_LAST_UPDATE_BALANCE_KEY }}" >> .env.production
           echo "VITE_LAST_UPDATE_EXPENSES_KEY=${{ secrets.VITE_LAST_UPDATE_EXPENSES_KEY }}" >> .env.production
     
