@@ -119,6 +119,22 @@
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.buttonDelete {
+  background-color:transparent;
+  margin-left: 2px;
+  border-radius: 8px;
+  padding: 0.5rem;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.buttonDelete:hover {
+  background-color: #a82929; 
+  color: white;
+}
+
 .buttonsBalance:hover {
   background-color: #bac5be; 
   color: white;

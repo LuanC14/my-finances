@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "./Modal.module.css";
 import { useAuth } from "../context/AuthContext";
 import _ from "lodash";
-import { FaSave, FaTimes, FaSyncAlt, FaPlus } from "react-icons/fa";
+import { FaSave, FaTimes, FaSyncAlt, FaPlus, FaTrash } from "react-icons/fa";
 import { handleGetBalance, handlePost } from "../api/api";
 
 const BALANCE_STORAGE_KEY = import.meta.env.VITE_BALANCE_STORAGE_KEY;
@@ -24,6 +24,17 @@ export default function BalanceModal({ onDataSaved }) {
 
   const addEntry = () => {
     setEntries([...entries, { tipo: "", valor: "" }]);
+  };
+
+  const deleteEntry = (index) => {
+    const updated = [...entries];
+    updated.splice(index, 1);
+
+    if (updated.length === 0) {
+      setEntries([{ tipo: "", valor: "" }]);
+    } else {
+      setEntries(updated);
+    }
   };
 
   const handleSave = async () => {
@@ -54,12 +65,6 @@ export default function BalanceModal({ onDataSaved }) {
         valor: parseFloat(entry.valor),
       }));
 
-    if (cleanedEntries.length === 0) {
-      alert(
-        "Por favor, preencha pelo menos uma entrada de salário/receita válida antes de salvar."
-      );
-      return;
-    }
     const url = `${API_BASE_URL}/${API_SALARY_BIN_RESOURCE}`;
 
     const body = { balance: cleanedEntries };
@@ -154,6 +159,15 @@ export default function BalanceModal({ onDataSaved }) {
                     onChange={(e) => handleChange(idx, "valor", e.target.value)}
                     placeholder="Ex: 5000"
                   />
+                </td>
+                <td>
+                  <button
+                    onClick={() => deleteEntry(idx)}
+                    className={styles.buttonDelete}
+                    title="Remover entrada"
+                  >
+                    <FaTrash />
+                  </button>
                 </td>
               </tr>
             ))}

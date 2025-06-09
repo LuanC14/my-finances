@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "./Modal.module.css";
 import { useAuth } from "../context/AuthContext";
 import _ from "lodash";
-import { FaSave, FaTimes, FaSyncAlt, FaPlus } from "react-icons/fa";
+import { FaSave, FaTimes, FaSyncAlt, FaPlus, FaTrash } from "react-icons/fa";
 import { handleGetExpenses, handlePost } from "../api/api";
 
 const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
@@ -30,6 +30,17 @@ export default function ExpensesModal({ onDataSaved }) {
     setExpenses([...expenses, { descricao: "", categoria: "", valor: "" }]);
   };
 
+  const deleteExpense = (index) => {
+    const updated = [...expenses];
+    updated.splice(index, 1);
+
+    if (updated.length === 0) {
+      setExpenses([{ descricao: "", categoria: "", valor: "" }]);
+    } else {
+      setExpenses(updated);
+    }
+  };
+
   const handleSave = async () => {
     const previousExpenses = JSON.parse(
       localStorage.getItem(EXPENSES_STORAGE_KEY)
@@ -54,13 +65,6 @@ export default function ExpensesModal({ onDataSaved }) {
         categoria: expense.categoria.trim(),
         valor: parseFloat(expense.valor),
       }));
-
-    if (cleanedExpenses.length === 0) {
-      alert(
-        "Por favor, preencha pelo menos uma entrada de salário/receita válida antes de salvar."
-      );
-      return;
-    }
 
     const url = `${API_BASE_URL}/${API_EXPENSES_BIN_RESOURCE}`;
 
@@ -177,6 +181,16 @@ export default function ExpensesModal({ onDataSaved }) {
                     onChange={(e) => handleChange(idx, "valor", e.target.value)}
                     placeholder="Ex: 150"
                   />
+                </td>
+
+                <td>
+                  <button
+                    onClick={() => deleteExpense(idx)}
+                    className={styles.buttonDelete}
+                    title="Remover entrada"
+                  >
+                    <FaTrash />
+                  </button>
                 </td>
               </tr>
             ))}
