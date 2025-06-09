@@ -24,4 +24,5 @@ dist-ssr
 *.sw?
 
 to-do-list.md
+.env.production
 .env
