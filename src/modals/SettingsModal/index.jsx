@@ -1,12 +1,12 @@
-import styles from "./Modal.module.css";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
+import styles from "./styles.module.css";
 
 const MY_FINANCES_SECURE_KEY = import.meta.env.VITE_MY_FINANCES_SECURE_KEY;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_AUTH_BIN_RESOURCE = import.meta.env.VITE_API_AUTH_BIN_RESOURCE;
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-export function SettingsModal({ onClose }) {
+export default function SettingsModal({ onClose }) {
   const { validKey, setValidKey } = useAuth(null);
 
   const handleAuth = async () => {

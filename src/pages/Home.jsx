@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import styles from "./Home.module.css";
-import BalanceModal from "../modals/BalanceModal";
-import ExpensesModal from "../modals/ExpensesModal";
-import CloseMonthModal from "../modals/CloseMonthModal";
-import { SettingsModal } from "../modals/SettingsModal";
+import styles from "./styles.module.css";
+import BalanceModal from "../modals/BalanceModal/index";
+import ExpensesModal from "../modals/ExpenseModal/index";
+import SettingsModal from "../modals/SettingsModal/index";
+import { FaTools } from "react-icons/fa";
 
 const BALANCE_STORAGE_KEY = import.meta.env.VITE_BALANCE_STORAGE_KEY;
 const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
@@ -11,7 +11,6 @@ const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
 export default function Home() {
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showExpensesModal, setShowExpensesModal] = useState(false);
-  const [showCloseMonthModal, setShowCloseMonthModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const [initialBalance, setInitialBalance] = useState(0);
@@ -76,12 +75,12 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Minhas Finanças</h1>
+      <h1 className={styles.title}>My Finances</h1>
       <button
         className={styles.settingsButton}
         onClick={() => setShowSettingsModal(true)}
       >
-        ⚙️
+        <FaTools />
       </button>
 
       <div className={styles.cardGrid}>
@@ -95,10 +94,7 @@ export default function Home() {
           <strong>R$ {monthlyExpenses.toFixed(2)}</strong>
         </div>
 
-        <div
-          className={styles.card}
-          onClick={() => setShowCloseMonthModal(true)}
-        >
+        <div className={styles.card}>
           <p>Saldo Atual</p>
           <strong>R$ {currentBalance.toFixed(2)}</strong>
         </div>
@@ -107,10 +103,6 @@ export default function Home() {
       {showBalanceModal && <BalanceModal onDataSaved={handleDataSaved} />}
 
       {showExpensesModal && <ExpensesModal onDataSaved={handleDataSaved} />}
-
-      {showCloseMonthModal && (
-        <CloseMonthModal onClose={() => setShowCloseMonthModal(false)} />
-      )}
 
       {showSettingsModal && (
         <SettingsModal onClose={() => setShowSettingsModal(false)} />

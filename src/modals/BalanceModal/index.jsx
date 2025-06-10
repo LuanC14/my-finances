@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import styles from "./Modal.module.css";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import _ from "lodash";
-import { FaSave, FaTimes, FaSyncAlt, FaPlus, FaTrash } from "react-icons/fa";
-import { handleGetBalance, handlePost } from "../api/api";
+import { handleGetBalance, handlePost } from "../../api/api";
+import BaseModal from "../../components/cardModal";
 
 const BALANCE_STORAGE_KEY = import.meta.env.VITE_BALANCE_STORAGE_KEY;
 const LAST_UPDATE_BALANCE_KEY = import.meta.env.VITE_LAST_UPDATE_BALANCE_KEY;
@@ -131,65 +130,36 @@ export default function BalanceModal({ onDataSaved }) {
   }, []);
 
   return (
-    <div className={styles.modalBackdrop}>
-      <div className={styles.modalContent}>
-        <h2>Registrar Saldo Inicial</h2>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Tipo</th>
-              <th>Valor (R$)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry, idx) => (
-              <tr key={idx}>
-                <td>
-                  <input
-                    type="text"
-                    value={entry.tipo}
-                    onChange={(e) => handleChange(idx, "tipo", e.target.value)}
-                    placeholder="Ex: Salário"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={entry.valor}
-                    onChange={(e) => handleChange(idx, "valor", e.target.value)}
-                    placeholder="Ex: 5000"
-                  />
-                </td>
-                <td>
-                  <button
-                    onClick={() => deleteEntry(idx)}
-                    className={styles.buttonDelete}
-                    title="Remover entrada"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <button className={styles.buttonsBalance} onClick={addEntry}>
-          <FaPlus />
-        </button>
-
-        <button onClick={handleSave} className={styles.buttonsBalance}>
-          <FaSave />
-        </button>
-
-        <button onClick={handleRefresh} className={styles.buttonsBalance}>
-          <FaSyncAlt />
-        </button>
-
-        <button onClick={onDataSaved} className={styles.buttonsBalance}>
-          <FaTimes />
-        </button>
-      </div>
-    </div>
+    <BaseModal
+      title="Registrar Saldo Inicial"
+      headers={["Tipo", "Valor (R$)"]}
+      entries={entries}
+      onChange={handleChange}
+      onAdd={addEntry}
+      onDelete={deleteEntry}
+      onSave={handleSave}
+      onRefresh={handleRefresh}
+      onClose={onDataSaved}
+      renderRow={(entry, idx, onChange) => (
+        <>
+          <td>
+            <input
+              type="text"
+              value={entry.tipo}
+              onChange={(e) => onChange(idx, "tipo", e.target.value)}
+              placeholder="Ex: Salário"
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              value={entry.valor}
+              onChange={(e) => onChange(idx, "valor", e.target.value)}
+              placeholder="Ex: 5000"
+            />
+          </td>
+        </>
+      )}
+    />
   );
 }

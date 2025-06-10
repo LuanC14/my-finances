@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import styles from "./Modal.module.css";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import _ from "lodash";
-import { FaSave, FaTimes, FaSyncAlt, FaPlus, FaTrash } from "react-icons/fa";
-import { handleGetExpenses, handlePost } from "../api/api";
+import { handleGetExpenses, handlePost } from "../../api/api";
+import BaseModal from "../../components/cardModal";
 
 const EXPENSES_STORAGE_KEY = import.meta.env.VITE_EXPENSES_STORAGE_KEY;
 const LAST_UPDATE_EXPENSES_KEY = import.meta.env.VITE_LAST_UPDATE_EXPENSES_KEY;
@@ -140,79 +139,44 @@ export default function ExpensesModal({ onDataSaved }) {
   }, []);
 
   return (
-    <div className={styles.modalBackdrop}>
-      <div className={styles.modalContent}>
-        <h2>Registrar Gastos do Mês</h2>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Descrição</th>
-              <th>Categoria</th>
-              <th>Valor (R$)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenses.map((item, idx) => (
-              <tr key={idx}>
-                <td>
-                  <input
-                    type="text"
-                    value={item.descricao}
-                    onChange={(e) =>
-                      handleChange(idx, "descricao", e.target.value)
-                    }
-                    placeholder="Ex: Conta de luz"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={item.categoria}
-                    onChange={(e) =>
-                      handleChange(idx, "categoria", e.target.value)
-                    }
-                    placeholder="Ex: Utilities"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={item.valor}
-                    onChange={(e) => handleChange(idx, "valor", e.target.value)}
-                    placeholder="Ex: 150"
-                  />
-                </td>
-
-                <td>
-                  <button
-                    onClick={() => deleteExpense(idx)}
-                    className={styles.buttonDelete}
-                    title="Remover entrada"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <button className={styles.buttonsBalance} onClick={addExpense}>
-          <FaPlus />
-        </button>
-
-        <button onClick={handleSave} className={styles.buttonsBalance}>
-          <FaSave />
-        </button>
-
-        <button onClick={handleRefresh} className={styles.buttonsBalance}>
-          <FaSyncAlt />
-        </button>
-
-        <button onClick={onDataSaved} className={styles.buttonsBalance}>
-          <FaTimes />
-        </button>
-      </div>
-    </div>
+    <BaseModal
+      title="Registrar Gastos do Mês"
+      headers={["Descrição", "Categoria", "Valor (R$)"]}
+      entries={expenses}
+      onChange={handleChange}
+      onAdd={addExpense}
+      onDelete={deleteExpense}
+      onSave={handleSave}
+      onRefresh={handleRefresh}
+      onClose={onDataSaved}
+      renderRow={(item, idx, onChange) => (
+        <>
+          <td>
+            <input
+              type="text"
+              value={item.descricao}
+              onChange={(e) => onChange(idx, "descricao", e.target.value)}
+              placeholder="Ex: Conta de luz"
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              value={item.categoria}
+              onChange={(e) => onChange(idx, "categoria", e.target.value)}
+              placeholder="Ex: Utilities"
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              value={item.valor}
+              onChange={(e) => onChange(idx, "valor", e.target.value)}
+              placeholder="Ex: 150"
+            />
+          </td>
+        </>
+      )}
+    />
   );
 }
