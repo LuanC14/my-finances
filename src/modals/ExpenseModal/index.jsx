@@ -112,7 +112,7 @@ export default function ExpensesModal({ onDataSaved }) {
         JSON.stringify(result.body.expenses)
       );
 
-      setExpenses(expenses);
+      setExpenses(result.body.expenses);
     } else {
       alert("Erro ao atualizar");
     }

@@ -105,7 +105,7 @@ export default function BalanceModal({ onDataSaved }) {
         BALANCE_STORAGE_KEY,
         JSON.stringify(result.body.balances)
       );
-      setEntries(entries);
+      setEntries(result.body.balances);
     } else {
       alert("Erro ao atualizar");
     }

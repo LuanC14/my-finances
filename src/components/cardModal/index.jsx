@@ -56,7 +56,7 @@ export default function BaseModal({
           <FaSyncAlt />
         </button>
 
-        <button onClick={onClose} className={styles.buttonsBalance}>
+        <button onClick={onClose} className={styles.cardModalButton}>
           <FaTimes />
         </button>
       </div>
